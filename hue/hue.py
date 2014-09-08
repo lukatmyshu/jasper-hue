@@ -58,3 +58,7 @@ def handle(text, mic, profile):
 
 def isValid(text):
     return bool(re.search(pattern, text, re.IGNORECASE))
+
+if __name__ == "__main__":
+    bridge = phue.Bridge(hue_bridge)
+    _handle(bridge, sys.argv[1])
