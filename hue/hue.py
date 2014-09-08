@@ -6,7 +6,7 @@ import logging
 
 WORDS = ["LIGHTS", "LIGHT"]
 #"Turn the" [identifier] [light/lights] [on/off]
-pattern = r'Turn the (\w*) lights? (on|off)'
+pattern = r'Turn the (.*) lights? (on|off)'
 
 hue_bridge = "192.168.1.67"
 
@@ -24,12 +24,12 @@ class InvalidGroupError(ValueError):
         return repr(self.msg)
 
 def _handle(bridge, text):
-    match = re.search(pattern, text)
+    match = re.search(pattern, text, re.IGNORECASE)
     if not match:
         logging.warn("Invalid text: %s", text)
         raise ValueError("Invalid text: %s", text)
 
-    light_group = match.groups()[0].lower()
+    light_group = match.groups()[0].lower().replace(" ", "")
     action = match.groups()[1].lower()
 
     logging.info("Light class: %s action %s", light_group, action)
@@ -49,7 +49,7 @@ def handle(text, mic, profile):
     bridge = phue.Bridge(hue_bridge)
     try:
         light_group, action = _handle(bridge, text)
-        mic.say("Turning %s lights %s", light_group, action)
+        mic.say("Turning %s lights %s" % (light_group, action))
     except InvalidGroupError, e:
         group = e.group
         mic.say("Invalid group %s" % group)
